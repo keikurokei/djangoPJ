@@ -1,3 +1,21 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
+from .forms import PhotoForm
+from .models import Photo
 
-# Create your views here.
+def index(req):
+    if req.method == 'GET':
+        return render(req, 'index.html', {
+            'form': PhotoForm(),
+            'photos': Photo.objects.all(), # ここを追加
+        })
+
+    elif req.method == 'POST':                                                     
+        form = PhotoForm(req.POST, req.FILES)
+        if not form.is_valid():
+            raise ValueError('invalid form')
+
+        photo = Photo()
+        photo.image = form.cleaned_data['image']
+        photo.save()
+
+        return redirect('/mlApp/index')
